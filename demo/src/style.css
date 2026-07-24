@@ -19,7 +19,12 @@
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
-  background: var(--bg);
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(170, 59, 255, 0.08), transparent 50%),
+    radial-gradient(ellipse at 85% 90%, rgba(59, 130, 246, 0.06), transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(244, 243, 236, 0.3), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -43,6 +48,13 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+
+    background:
+      radial-gradient(ellipse at 15% 10%, rgba(192, 132, 252, 0.1), transparent 50%),
+      radial-gradient(ellipse at 85% 90%, rgba(59, 130, 246, 0.08), transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(47, 48, 58, 0.5), transparent 70%),
+      var(--bg);
+    background-attachment: fixed;
   }
 
   #social .button-icon {
