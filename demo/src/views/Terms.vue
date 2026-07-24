@@ -3,7 +3,7 @@ const lastUpdated = '2026-07-24'
 </script>
 
 <template>
-  <main class="page">
+  <main id="main-content" class="page">
     <h1>Terms</h1>
     <div class="content">
       <p><strong>Last updated:</strong> {{ lastUpdated }}</p>
@@ -25,6 +25,27 @@ const lastUpdated = '2026-07-24'
       <h2>4. Disclaimer</h2>
       <p>
         The application is provided "as is" without warranty of any kind.
+      </p>
+      <h2>5. Intellectual Property</h2>
+      <p>
+        All content, including the poem and design elements, is owned by the
+        repository owner. You may not copy, modify, or distribute it without
+        permission.
+      </p>
+      <h2>6. Limitation of Liability</h2>
+      <p>
+        The repository owner shall not be liable for any damages arising from
+        the use of this demo application.
+      </p>
+      <h2>7. Changes to Terms</h2>
+      <p>
+        These terms may be updated at any time. Continued use of the
+        application constitutes acceptance of the updated terms.
+      </p>
+      <h2>8. Contact</h2>
+      <p>
+        For questions about these terms, please open an issue on the
+        <a href="https://github.com/RainerSchmoeger/cloud-agents-test">GitHub repository</a>.
       </p>
     </div>
   </main>
