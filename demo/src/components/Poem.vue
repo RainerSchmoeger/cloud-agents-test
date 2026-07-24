@@ -19,7 +19,7 @@ const lines = [
   'And when at last the server sleeps,',
   'The monitor its vigil keeps.',
   'A poem saved in ones and zeros,',
-  'Lives on beyond its author\'s errors.',
+  "Lives on beyond its author's errors.",
 ]
 </script>
 
