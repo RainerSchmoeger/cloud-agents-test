@@ -42,3 +42,15 @@ These rules are mandatory. Follow them strictly for every change.
 - Each commit should represent one coherent change.
 - Write clear, concise commit messages in the imperative mood (e.g. `add login form validation`).
 - Do not mix unrelated changes in a single commit.
+
+### 7. Use openspec-propose for "Propose" issues
+
+- When a GitHub issue title or body contains the word "Propose" (e.g.
+  "Propose design updates", "Propose new functionality"), use the
+  **openspec-propose** skill to generate a structured proposal with
+  design, specs, and tasks rather than directly writing implementation
+  code.
+- Load the skill via `skill: openspec-propose` and provide the issue
+  context as the change description.
+- Commit the generated proposal artifacts (in `openspec/changes/`)
+  and push them on a `cloud/` branch.

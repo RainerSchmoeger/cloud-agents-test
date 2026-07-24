@@ -96,7 +96,20 @@ for each one, while housekeeping already-merged PRs.
 
 6. **Fix the most important open issue**. Pick the highest-priority
    remaining open issue (lowest number, or one explicitly labelled
-   `priority`/`bug`). Create a branch:
+   `priority`/`bug`).
+
+   **If the issue title or body contains "Propose"** (e.g. "Propose
+   design updates", "Propose new functionality"), use the
+   **openspec-propose** skill to generate a complete proposal with
+   design, specs, and tasks instead of directly implementing code:
+   ```
+   Load skill: openspec-propose
+   Provide the issue context as the change description.
+   The skill generates proposal artifacts in openspec/changes/.
+   ```
+   Commit the generated proposal artifacts and push.
+
+   Otherwise, create a branch:
    ```bash
    git checkout -b "cloud/issue-<number>-<description>" origin/main
    ```
