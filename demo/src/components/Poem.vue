@@ -15,6 +15,11 @@ const lines = [
   'While stars outside forget the day.',
   'A verse compiled, a dream compiled—',
   'Goodnight, dear shell, until we build.',
+  '',
+  'And when at last the server sleeps,',
+  'The monitor its vigil keeps.',
+  'A poem saved in ones and zeros,',
+  'Lives on beyond its author\'s errors.',
 ]
 </script>
 
