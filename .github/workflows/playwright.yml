@@ -9,6 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.61.1-noble
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -24,12 +25,10 @@ jobs:
         working-directory: demo
         run: npm ci
 
-      - name: Install Playwright browsers
-        working-directory: demo
-        run: npx playwright install --with-deps chromium
-
       - name: Run Playwright tests
         working-directory: demo
+        env:
+          HOME: /root
         run: npm run test:e2e
 
       - name: Upload test report
