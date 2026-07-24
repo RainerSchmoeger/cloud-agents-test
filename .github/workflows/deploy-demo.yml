@@ -9,14 +9,18 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  pages: write
+  id-token: write
 
 concurrency:
-  group: deploy-demo-${{ github.event.number || 'main' }}
-  cancel-in-progress: true
+  group: deploy-demo-pages
+  cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -41,6 +45,7 @@ jobs:
           cache-dependency-path: demo/package-lock.json
 
       - name: Install and build demo
+        if: github.event.action != 'closed'
         working-directory: demo
         env:
           BASE_PATH: ${{ steps.target.outputs.base_path }}
@@ -48,35 +53,72 @@ jobs:
           npm ci
           npm run build
 
-      - name: Checkout gh-pages
+      - name: Checkout gh-pages (for existing subpaths)
         uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: gh-pages
-          fetch-depth: 0
+          fetch-depth: 1
 
-      - name: Sync build to gh-pages subpath
+      - name: Assemble Pages artifact
         run: |
           SUBPATH="${{ steps.target.outputs.subpath }}"
-          git -C gh-pages config user.name "github-actions[bot]"
-          git -C gh-pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p _site
+
+          # Copy existing content from gh-pages branch (other subpaths)
+          if [ -d gh-pages ]; then
+            cp -r gh-pages/* _site/ 2>/dev/null || true
+          fi
 
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "closed" ]; then
             echo "PR closed - removing /${SUBPATH}"
-            rm -rf "gh-pages/${SUBPATH}"
+            rm -rf "_site/${SUBPATH}"
           else
-            rm -rf "gh-pages/${SUBPATH}"
-            mkdir -p "gh-pages/${SUBPATH}"
-            cp -r demo/dist/* "gh-pages/${SUBPATH}/"
+            rm -rf "_site/${SUBPATH}"
+            mkdir -p "_site/${SUBPATH}"
+            cp -r demo/dist/* "_site/${SUBPATH}/"
           fi
 
-      - name: Commit and push
+          # Ensure root index.html exists (redirect to /main/ if missing)
+          if [ ! -f "_site/index.html" ]; then
+            cat > _site/index.html << 'HTMLEOF'
+          <!doctype html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <title>cloud-agents-test</title>
+              <meta http-equiv="refresh" content="0; url=main/">
+            </head>
+            <body>Redirecting to <a href="main/">main/</a>...</body>
+          </html>
+          HTMLEOF
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      - name: Persist gh-pages branch
         run: |
           SUBPATH="${{ steps.target.outputs.subpath }}"
           cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Sync _site content back
+          rm -rf ./*
+          cp -r ../_site/* .
           git add -A
           if git diff --cached --quiet; then
-            echo "No changes to deploy"
+            echo "No changes to gh-pages branch"
             exit 0
           fi
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "closed" ]; then
