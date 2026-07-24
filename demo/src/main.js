@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import './style.css'
 import App from './App.vue'
 import Poem from './components/Poem.vue'
-import Terms from './views/Terms.vue'
 import Feedback from './views/Feedback.vue'
+import Terms from './views/Terms.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
