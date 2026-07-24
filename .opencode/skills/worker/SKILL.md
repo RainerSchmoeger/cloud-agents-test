@@ -92,9 +92,36 @@ for each one, while housekeeping already-merged PRs.
      with an answer instead of editing code.
    - If a comment is unclear, reply asking for clarification rather
      than guessing.
-   - Skip bot-generated comments (e.g. deploy previews).
+    - Skip bot-generated comments (e.g. deploy previews).
 
-6. **Fix the most important open issue**. Pick the highest-priority
+6. **Review dependabot PRs**. For each open PR authored by `dependabot`
+   (or `github-actions[bot]` for action updates):
+   - Fetch the diff to understand the dependency change:
+     ```bash
+     gh pr diff <pr_number> --repo "$REPO"
+     ```
+   - Review for **breaking changes / migrations**: check the dependency's
+     changelog or release notes for major version bumps. If the package
+     has a migration guide (e.g. Vite 7→8, Vue 3 minor), verify the
+     codebase is compatible.
+   - **Make the PR green**: if CI is failing, checkout the PR branch,
+     fix any test or build failures, commit, and push:
+     ```bash
+     git fetch origin pull/<pr_number>/head:dep-pr-<pr_number>
+     git checkout dep-pr-<pr_number>
+     # fix issues...
+     git push origin dep-pr-<pr_number>
+     ```
+   - If the dependency bump requires code changes (e.g. deprecated API
+     removed), apply them on the branch.
+   - Reply on the PR with a summary of the review:
+     ```bash
+     gh pr comment <pr_number> --repo "$REPO" \
+       --body "Reviewed: <summary of changes/migrations checked>"
+     ```
+   - Do NOT merge the PR; leave approval to the human reviewer.
+
+7. **Fix the most important open issue**. Pick the highest-priority
    remaining open issue (lowest number, or one explicitly labelled
    `priority`/`bug`). Create a branch:
    ```bash
@@ -112,17 +139,17 @@ for each one, while housekeeping already-merged PRs.
    If `gh`/API auth is unavailable, push the branch and report the
    PR-creation URL for the human to click.
 
-7. **Check for remaining issues**. If open issues still exist, go to
+8. **Check for remaining issues**. If open issues still exist, go to
    step 2 immediately (process the next one). If no open issues remain,
-   proceed to step 8.
+   proceed to step 9.
 
-8. **Idle wait**. When no issues are present, wait for
+9. **Idle wait**. When no issues are present, wait for
    `IDLE_POLL_SECONDS`:
    ```bash
    sleep "$IDLE_POLL_SECONDS"
    ```
 
-9. **Check deadline**. If `now >= deadline` (i.e. waited for
+10. **Check deadline**. If `now >= deadline` (i.e. waited for
    `TIME_BUDGET_MINUTES` total), **stop**. Otherwise go to step 2 and
    continue the loop.
 
