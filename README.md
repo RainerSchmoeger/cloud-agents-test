@@ -21,3 +21,12 @@ And when at last the server sleeps,
 The monitor its vigil keeps.
 A poem saved in ones and zeros,
 Lives on beyond its author's errors.
+
+## Agent Conventions
+
+See [AGENTS.md](./AGENTS.md) for the full git workflow rules.
+
+When a GitHub issue title or body contains "Propose", the agent uses
+the **openspec-propose** skill to generate a structured proposal (design,
+specs, and tasks) in `openspec/changes/` instead of directly writing
+implementation code.
