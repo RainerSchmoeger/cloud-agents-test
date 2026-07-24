@@ -11,8 +11,8 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: deploy-demo-${{ github.event.number || 'main' }}
-  cancel-in-progress: true
+  group: deploy-demo
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -41,6 +41,7 @@ jobs:
           cache-dependency-path: demo/package-lock.json
 
       - name: Install and build demo
+        if: github.event.action != 'closed'
         working-directory: demo
         env:
           BASE_PATH: ${{ steps.target.outputs.base_path }}
@@ -55,19 +56,19 @@ jobs:
           path: gh-pages
           fetch-depth: 0
 
-      - name: Sync build to gh-pages subpath
+      - name: Sync build to gh-pages/docs subpath
         run: |
           SUBPATH="${{ steps.target.outputs.subpath }}"
           git -C gh-pages config user.name "github-actions[bot]"
           git -C gh-pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "closed" ]; then
-            echo "PR closed - removing /${SUBPATH}"
-            rm -rf "gh-pages/${SUBPATH}"
+            echo "PR closed - removing /docs/${SUBPATH}"
+            rm -rf "gh-pages/docs/${SUBPATH}"
           else
-            rm -rf "gh-pages/${SUBPATH}"
-            mkdir -p "gh-pages/${SUBPATH}"
-            cp -r demo/dist/* "gh-pages/${SUBPATH}/"
+            rm -rf "gh-pages/docs/${SUBPATH}"
+            mkdir -p "gh-pages/docs/${SUBPATH}"
+            cp -r demo/dist/* "gh-pages/docs/${SUBPATH}/"
           fi
 
       - name: Commit and push
@@ -80,9 +81,9 @@ jobs:
             exit 0
           fi
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "closed" ]; then
-            MSG="deploy: remove ${SUBPATH} (closed PR)"
+            MSG="deploy: remove docs/${SUBPATH} (closed PR)"
           else
-            MSG="deploy: update ${SUBPATH} from ${{ github.sha }}"
+            MSG="deploy: update docs/${SUBPATH} from ${{ github.sha }}"
           fi
           git commit -m "${MSG}"
           git push origin gh-pages
