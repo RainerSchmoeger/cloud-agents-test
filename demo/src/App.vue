@@ -1,8 +1,10 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
+import BackgroundStory from './components/BackgroundStory.vue'
 </script>
 
 <template>
+  <BackgroundStory />
   <header class="site-header">
     <RouterLink to="/" class="brand">A Poem</RouterLink>
     <nav>
