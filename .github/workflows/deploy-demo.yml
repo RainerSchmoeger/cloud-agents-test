@@ -118,12 +118,38 @@ jobs:
             exit 0
           fi
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "closed" ]; then
-            MSG="deploy: remove docs/${SUBPATH} (closed PR)"
+            MSG="deploy: remove ${SUBPATH} (closed PR)"
           else
-            MSG="deploy: update docs/${SUBPATH} from ${{ github.sha }}"
+            MSG="deploy: update ${SUBPATH} from ${{ github.sha }}"
           fi
           git commit -m "${MSG}"
           git push origin gh-pages
+
+      - name: Wait for GitHub Pages deployment
+        id: wait-pages
+        if: github.event.action != 'closed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const maxAttempts = 60;
+            const delay = 10000;
+            for (let i = 0; i < maxAttempts; i++) {
+              try {
+                const resp = await fetch(`https://${context.repo.owner}.github.io/${context.repo.repo}/`, {
+                  method: 'HEAD',
+                  redirect: 'manual',
+                });
+                core.info(`Attempt ${i + 1}: status ${resp.status}`);
+                if (resp.status === 200) {
+                  core.info('GitHub Pages is live');
+                  return;
+                }
+              } catch (e) {
+                core.info(`Attempt ${i + 1}: ${e.message}`);
+              }
+              await new Promise(r => setTimeout(r, delay));
+            }
+            core.warning('Timed out waiting for GitHub Pages to go live');
 
       - name: Comment on PR with preview URL
         if: github.event_name == 'pull_request' && github.event.action != 'closed'
