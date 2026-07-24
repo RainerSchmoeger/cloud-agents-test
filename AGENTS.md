@@ -4,16 +4,16 @@
 
 These rules are mandatory. Follow them strictly for every change.
 
-### 1. Never commit to master
+### 1. Never commit to main
 
-- Never commit directly to `master` (or `main`).
-- Never force push to `master`, or change its history in any way.
-- `master` is a protected branch; treat it as read-only.
+- Never commit directly to `main`.
+- Never force push to `main`, or change its history in any way.
+- `main` is a protected branch; treat it as read-only.
 
 ### 2. Enforce linear history
 
-- Always rebase your feature branch on the latest `master` before pushing and before opening a PR.
-- Run `git fetch origin && git rebase origin/master` frequently to stay up to date.
+- Always rebase your feature branch on the latest `main` before pushing and before opening a PR.
+- Run `git fetch origin && git rebase origin/main` frequently to stay up to date.
 - Resolve rebase conflicts locally, then continue.
 - Never create merge commits (`--no-ff`). Keep history linear.
 
@@ -25,7 +25,7 @@ These rules are mandatory. Follow them strictly for every change.
 
 ### 4. Always work on a branch
 
-- Never work on `master` directly.
+- Never work on `main` directly.
 - Create a feature branch before making any changes.
 - Commit and push your changes to that branch.
 - Keep branches short-lived and focused on a single concern.
