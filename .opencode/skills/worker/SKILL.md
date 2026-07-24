@@ -58,7 +58,43 @@ for each one, while housekeeping already-merged PRs.
    ```
    Skip and report if conflicts cannot be resolved automatically.
 
-5. **Fix the most important open issue**. Pick the highest-priority
+5. **Reply to and address GitHub review comments**. For each open PR,
+   fetch both review comments (inline, on specific lines) and issue
+   comments (general conversation):
+
+   Using `gh`:
+   ```bash
+   gh api repos/$REPO/pulls/<pr_number>/comments
+   gh api repos/$REPO/issues/<pr_number>/comments
+   ```
+   Or via the REST API:
+   ```bash
+   curl -sf "https://api.github.com/repos/$REPO/pulls/<pr_number>/comments"
+   curl -sf "https://api.github.com/repos/$REPO/issues/<pr_number>/comments"
+   ```
+
+   For each unresolved comment that requests a change or raises a
+   concern:
+   - Read and understand the feedback.
+   - Make the requested code change on the PR's branch (checkout the
+     `headRefName`, commit, push). Re-trigger CI by pushing.
+   - Reply to the comment to acknowledge the fix:
+     ```bash
+     gh pr comment "<pr_number>" --repo "$REPO" --body "Addressed in <commit-sha>: <summary>"
+     ```
+     Or via the REST API:
+     ```bash
+     curl -sf -X POST -H "Authorization: token $GITHUB_TOKEN" \
+       "https://api.github.com/repos/$REPO/issues/<pr_number>/comments" \
+       -d '{"body":"Addressed in <sha>: <summary>"}'
+     ```
+   - If a comment is a question rather than a change request, reply
+     with an answer instead of editing code.
+   - If a comment is unclear, reply asking for clarification rather
+     than guessing.
+   - Skip bot-generated comments (e.g. deploy previews).
+
+6. **Fix the most important open issue**. Pick the highest-priority
    remaining open issue (lowest number, or one explicitly labelled
    `priority`/`bug`). Create a branch:
    ```bash
@@ -76,17 +112,17 @@ for each one, while housekeeping already-merged PRs.
    If `gh`/API auth is unavailable, push the branch and report the
    PR-creation URL for the human to click.
 
-6. **Check for remaining issues**. If open issues still exist, go to
+7. **Check for remaining issues**. If open issues still exist, go to
    step 2 immediately (process the next one). If no open issues remain,
-   proceed to step 7.
+   proceed to step 8.
 
-7. **Idle wait**. When no issues are present, wait for
+8. **Idle wait**. When no issues are present, wait for
    `IDLE_POLL_SECONDS`:
    ```bash
    sleep "$IDLE_POLL_SECONDS"
    ```
 
-8. **Check deadline**. If `now >= deadline` (i.e. waited for
+9. **Check deadline**. If `now >= deadline` (i.e. waited for
    `TIME_BUDGET_MINUTES` total), **stop**. Otherwise go to step 2 and
    continue the loop.
 
