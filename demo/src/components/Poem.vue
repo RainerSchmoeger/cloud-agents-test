@@ -1,37 +1,22 @@
 <script setup>
-import { ref, onMounted } from 'vue'
-
 const title = 'A Poem'
-const lines = ref([])
-const loading = ref(true)
-const error = ref('')
-
-onMounted(async () => {
-  try {
-    const res = await fetch('/README.md')
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const text = await res.text()
-    const body = text.split(/^##\s+A Poem\s*$/m)[1] ?? text
-    lines.value = body
-      .split('\n')
-      .map((l) => l.trimEnd())
-      .filter((l) => l.trim() !== '')
-    error.value = ''
-  } catch (e) {
-    error.value = `Could not load poem: ${e.message}`
-    lines.value = []
-  } finally {
-    loading.value = false
-  }
-})
+const lines = [
+  'In circuits deep and threads unseen,',
+  'A quiet thought begins to gleam.',
+  'From line to line, the code takes flight—',
+  'A small spark born to find the light.',
+  '',
+  'It hums through silicon and wire,',
+  'Fueled by coffee, fueled by fire.',
+  'And though the hours stretch and bend,',
+  'Each bug fixed brings a hopeful end.',
+]
 </script>
 
 <template>
   <main>
     <h1>{{ title }}</h1>
-    <p v-if="loading" class="state">Loading…</p>
-    <p v-else-if="error" class="state error">{{ error }}</p>
-    <pre v-else class="poem"><span v-for="(line, i) in lines" :key="i">{{ line }}<br /></span></pre>
+    <pre class="poem"><span v-for="(line, i) in lines" :key="i">{{ line }}<br /></span></pre>
   </main>
 </template>
 
