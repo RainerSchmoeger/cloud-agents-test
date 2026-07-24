@@ -71,6 +71,43 @@ jobs:
             cp -r demo/dist/* "gh-pages/docs/${SUBPATH}/"
           fi
 
+      - name: Regenerate index.html with links to all builds
+        run: |
+          ROOT_DIR="gh-pages"
+
+          cat > "$ROOT_DIR/index.html" << 'HEAD'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Demo Builds</title>
+            <style>
+              body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+              h1 { font-size: 1.5rem; }
+              ul { list-style: none; padding: 0; }
+              li { padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+              a { color: #0969da; text-decoration: none; }
+              a:hover { text-decoration: underline; }
+            </style>
+          </head>
+          <body>
+            <h1>Demo Builds</h1>
+            <ul>
+          HEAD
+
+          for dir in "$ROOT_DIR"/*/; do
+            name=$(basename "$dir")
+            if [ "$name" = "index.html" ]; then continue; fi
+            echo "              <li><a href=\"${name}/\">${name}</a></li>" >> "$ROOT_DIR/index.html"
+          done
+
+          cat >> "$ROOT_DIR/index.html" << 'TAIL'
+            </ul>
+          </body>
+          </html>
+          TAIL
+
       - name: Commit and push
         run: |
           SUBPATH="${{ steps.target.outputs.subpath }}"
@@ -87,6 +124,32 @@ jobs:
           fi
           git commit -m "${MSG}"
           git push origin gh-pages
+
+      - name: Wait for GitHub Pages deployment
+        id: wait-pages
+        if: github.event.action != 'closed'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const maxAttempts = 60;
+            const delay = 10000;
+            for (let i = 0; i < maxAttempts; i++) {
+              try {
+                const resp = await fetch(`https://${context.repo.owner}.github.io/${context.repo.repo}/`, {
+                  method: 'HEAD',
+                  redirect: 'manual',
+                });
+                core.info(`Attempt ${i + 1}: status ${resp.status}`);
+                if (resp.status === 200) {
+                  core.info('GitHub Pages is live');
+                  return;
+                }
+              } catch (e) {
+                core.info(`Attempt ${i + 1}: ${e.message}`);
+              }
+              await new Promise(r => setTimeout(r, delay));
+            }
+            core.warning('Timed out waiting for GitHub Pages to go live');
 
       - name: Comment on PR with preview URL
         if: github.event_name == 'pull_request' && github.event.action != 'closed'
