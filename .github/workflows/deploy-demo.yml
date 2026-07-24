@@ -56,26 +56,27 @@ jobs:
           path: gh-pages
           fetch-depth: 0
 
-      - name: Sync build to gh-pages/docs subpath
+      - name: Sync build to gh-pages subpath
         run: |
           SUBPATH="${{ steps.target.outputs.subpath }}"
           git -C gh-pages config user.name "github-actions[bot]"
           git -C gh-pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "closed" ]; then
-            echo "PR closed - removing /docs/${SUBPATH}"
-            rm -rf "gh-pages/docs/${SUBPATH}"
+            echo "PR closed - removing /${SUBPATH}"
+            rm -rf "gh-pages/${SUBPATH}"
           else
-            rm -rf "gh-pages/docs/${SUBPATH}"
-            mkdir -p "gh-pages/docs/${SUBPATH}"
-            cp -r demo/dist/* "gh-pages/docs/${SUBPATH}/"
+            rm -rf "gh-pages/${SUBPATH}"
+            mkdir -p "gh-pages/${SUBPATH}"
+            cp -r demo/dist/* "gh-pages/${SUBPATH}/"
           fi
 
       - name: Regenerate index.html with links to all builds
         run: |
           ROOT_DIR="gh-pages"
+          INDEX="$ROOT_DIR/index.html"
 
-          cat > "$ROOT_DIR/index.html" << 'HEAD'
+          cat > "$INDEX" << 'EOF'
           <!doctype html>
           <html lang="en">
           <head>
@@ -94,19 +95,19 @@ jobs:
           <body>
             <h1>Demo Builds</h1>
             <ul>
-          HEAD
+          EOF
 
           for dir in "$ROOT_DIR"/*/; do
             name=$(basename "$dir")
             if [ "$name" = "index.html" ]; then continue; fi
-            echo "              <li><a href=\"${name}/\">${name}</a></li>" >> "$ROOT_DIR/index.html"
+            echo "              <li><a href=\"${name}/\">${name}</a></li>" >> "$INDEX"
           done
 
-          cat >> "$ROOT_DIR/index.html" << 'TAIL'
+          cat >> "$INDEX" << 'EOF'
             </ul>
           </body>
           </html>
-          TAIL
+          EOF
 
       - name: Commit and push
         run: |
@@ -118,9 +119,9 @@ jobs:
             exit 0
           fi
           if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.action }}" = "closed" ]; then
-            MSG="deploy: remove docs/${SUBPATH} (closed PR)"
+            MSG="deploy: remove ${SUBPATH} (closed PR)"
           else
-            MSG="deploy: update docs/${SUBPATH} from ${{ github.sha }}"
+            MSG="deploy: update ${SUBPATH} from ${{ github.sha }}"
           fi
           git commit -m "${MSG}"
           git push origin gh-pages
