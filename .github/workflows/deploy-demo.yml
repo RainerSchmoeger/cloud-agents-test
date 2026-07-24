@@ -33,12 +33,17 @@ jobs:
           echo "subpath=${SUBPATH}" >> "$GITHUB_OUTPUT"
           echo "base_path=/${{ github.event.repository.name }}/${SUBPATH}/" >> "$GITHUB_OUTPUT"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
-          cache-dependency-path: demo/package-lock.json
+          cache: pnpm
+          cache-dependency-path: demo/pnpm-lock.yaml
 
       - name: Install and build demo
         if: github.event.action != 'closed'
@@ -46,8 +51,8 @@ jobs:
         env:
           BASE_PATH: ${{ steps.target.outputs.base_path }}
         run: |
-          npm ci
-          npm run build
+          pnpm install --frozen-lockfile
+          pnpm run build
 
       - name: Checkout gh-pages
         uses: actions/checkout@v4
