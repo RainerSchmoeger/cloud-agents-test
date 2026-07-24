@@ -24,7 +24,7 @@ const lines = [
 </script>
 
 <template>
-  <main>
+  <main id="main-content">
     <h1>{{ title }}</h1>
     <pre class="poem"><span v-for="(line, i) in lines" :key="i">{{ line }}<br /></span></pre>
   </main>

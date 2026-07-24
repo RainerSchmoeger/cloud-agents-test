@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <main class="page">
+  <main id="main-content" class="page">
     <h1>Feedback</h1>
     <p class="placeholder">
       This page is a placeholder. A feedback form will be implemented here
